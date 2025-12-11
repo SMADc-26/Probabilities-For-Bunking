@@ -62,9 +62,11 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     max-width: 450px;
     width: 100%;
-    position: relative;
+    position: absolute;
     z-index: 1;
     animation: slideUp 0.5s ease-out;
+    cursor: move;
+    user-select: none;
   }
   
   @keyframes slideUp {
@@ -253,6 +255,104 @@
   .hidden {
     display: none;
   }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    body {
+      padding: 10px;
+    }
+    
+    .container {
+      padding: 25px;
+      max-width: 100%;
+      border-radius: 20px;
+    }
+    
+    .header h1 {
+      font-size: 26px;
+    }
+    
+    .emoji-decoration {
+      font-size: 40px;
+    }
+    
+    .input-group label {
+      font-size: 14px;
+    }
+    
+    .input-group input,
+    .input-group select {
+      padding: 12px;
+      font-size: 14px;
+    }
+    
+    .day-btn {
+      padding: 12px;
+      font-size: 14px;
+    }
+    
+    .calculate-btn {
+      padding: 15px;
+      font-size: 16px;
+    }
+    
+    .result {
+      padding: 20px;
+    }
+    
+    .result-emoji {
+      font-size: 50px;
+    }
+    
+    .result-percent {
+      font-size: 38px;
+    }
+    
+    .result-text {
+      font-size: 14px;
+    }
+    
+    .result-message {
+      font-size: 13px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 20px;
+    }
+    
+    .header h1 {
+      font-size: 22px;
+    }
+    
+    .header p {
+      font-size: 13px;
+    }
+    
+    .emoji-decoration {
+      font-size: 35px;
+    }
+    
+    .day-selector {
+      grid-template-columns: 1fr;
+    }
+    
+    .result-emoji {
+      font-size: 45px;
+    }
+    
+    .result-percent {
+      font-size: 32px;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .container {
+      max-width: 500px;
+      padding: 45px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -295,6 +395,75 @@
 
   <script>
     let selectedDay = 'today';
+    
+    // Draggable functionality
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+    
+    const container = document.querySelector('.container');
+    
+    container.addEventListener('mousedown', dragStart);
+    container.addEventListener('touchstart', dragStart);
+    
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('touchmove', drag);
+    
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchend', dragEnd);
+    
+    function dragStart(e) {
+      // Don't drag if clicking on input, button, or select
+      if (e.target.tagName === 'INPUT' || 
+          e.target.tagName === 'BUTTON' || 
+          e.target.tagName === 'SELECT' ||
+          e.target.classList.contains('day-btn')) {
+        return;
+      }
+      
+      if (e.type === 'touchstart') {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+      } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+      }
+      
+      isDragging = true;
+    }
+    
+    function drag(e) {
+      if (isDragging) {
+        e.preventDefault();
+        
+        if (e.type === 'touchmove') {
+          currentX = e.touches[0].clientX - initialX;
+          currentY = e.touches[0].clientY - initialY;
+        } else {
+          currentX = e.clientX - initialX;
+          currentY = e.clientY - initialY;
+        }
+        
+        xOffset = currentX;
+        yOffset = currentY;
+        
+        setTranslate(currentX, currentY, container);
+      }
+    }
+    
+    function dragEnd(e) {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+    }
+    
+    function setTranslate(xPos, yPos, el) {
+      el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
     
     // Day selector functionality
     document.querySelectorAll('.day-btn').forEach(btn => {
