@@ -1,74 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Bunk Probability Calculator</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-  
+  /* Import font */
+  @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
+  /* Base Reset */
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
-  
+
   body {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
     position: relative;
-    overflow: hidden;
-  }
-  
-  body::before {
-    content: '';
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    top: -250px;
-    right: -250px;
-    animation: float 6s ease-in-out infinite;
+    overflow-x: hidden;
+    transition: background 0.5s ease;
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
   }
   
   body::after {
-    content: '';
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  body.light-mode {
+    background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+    background-size: 400% 400%;
+    animation: spin-gradient 20s ease infinite;
+  }
+  
+  body.light-mode::after {
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+  }
+  
+  body.dark-mode {
+    background: linear-gradient(45deg, #1a1a2e, #0f3460, #16213e);
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+  }
+  
+  body.dark-mode::after {
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  }
+
+  /* Floating Background Circles */
+  body::before,
+  body::after {
+    content: "";
     position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    animation: float 7s ease-in-out infinite;
+  }
+  body::before {
+    width: 420px;
+    height: 420px;
+    top: -200px;
+    right: -180px;
+  }
+  body::after {
+    width: 350px;
+    height: 350px;
+    bottom: -150px;
+    left: -150px;
+    animation-duration: 9s;
+    animation-direction: reverse;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(20px);
+    }
+  }
+  
+  /* Interactive Space Background */
+  .space-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .star {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    animation: twinkle 3s infinite;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+  }
+  
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  
+  .floating-particle {
+    position: absolute;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  
+  @keyframes float-up {
+    0% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh) translateX(100px);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes float-down {
+    0% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) translateX(-100px);
+      opacity: 0;
+    }
+  }
+  
+  /* Sunlight rays for light mode */
+  .sun-rays {
+    position: fixed;
+    top: -10%;
+    right: -5%;
     width: 400px;
     height: 400px;
-    background: rgba(255, 255, 255, 0.08);
+    background: radial-gradient(circle, rgba(255, 200, 87, 0.4) 0%, rgba(255, 200, 87, 0.2) 30%, transparent 70%);
     border-radius: 50%;
-    bottom: -200px;
-    left: -200px;
-    animation: float 8s ease-in-out infinite reverse;
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.5s ease;
   }
   
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(20px); }
+  body.light-mode .sun-rays {
+    opacity: 1;
   }
   
-  .container {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 25px;
-    padding: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 450px;
-    width: 100%;
+  /* Birds flying effect */
+  .bird {
     position: absolute;
-    z-index: 1;
-    animation: slideUp 0.5s ease-out;
-    cursor: move;
-    user-select: none;
+    font-size: 20px;
+    opacity: 0.7;
+    animation: fly 15s linear infinite;
+    pointer-events: none;
   }
   
+  @keyframes fly {
+    0% {
+      transform: translateX(-100px) translateY(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.7;
+    }
+    90% {
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateX(calc(100vw + 100px)) translateY(-30px);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes fly-reverse {
+    0% {
+      transform: translateX(calc(100vw + 100px)) translateY(0) scaleX(-1);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.7;
+    }
+    90% {
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateX(-100px) translateY(-30px) scaleX(-1);
+      opacity: 0;
+    }
+  }
+  
+  /* Mesh gradient animated background */
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  @keyframes spin-gradient {
+    0% { 
+      background: linear-gradient(45deg, #cff06b, hwb(45 15% 0%), #e94e4b);
+      background-position: 0% 50%;
+    }
+    25% { 
+      background: linear-gradient(135deg, #f5f104, #e94e4b, hwb(45 15% 0%)a);
+      background-position: 100% 50%;
+    }
+    50% { 
+      background: linear-gradient(225deg, #e94b8c, hwb(45 15% 0%), #cff06b);
+      background-position: 100% 0%;
+    }
+    75% { 
+      background: linear-gradient(315deg, #bef222, hwb(45 15% 0%), #e94b8c);
+      background-position: 0% 100%;
+    }
+    100% { 
+      background: linear-gradient(45deg, #c6f340, hwb(45 15% 0%), #e94b8c);
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Main Card */
+  .container {
+    width: 100%;
+    max-width: 460px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    padding: 35px;
+    border-radius: 25px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: slideUp 0.55s ease-out;
+    cursor: grab;
+    transition: all 0.4s ease;
+    z-index: 100;
+  }
+  
+  .container:hover {
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+    transform: translateY(-5px);
+  }
+  
+  body.dark-mode .container {
+    background: rgba(30, 40, 60, 0.95);
+    color: #fff;
+  }
+  
+  body.light-mode .container {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
   @keyframes slideUp {
     from {
       opacity: 0;
@@ -79,137 +293,199 @@
       transform: translateY(0);
     }
   }
-  
+
+  /* Header */
   .header {
     text-align: center;
-    margin-bottom: 35px;
+    margin-bottom: 30px;
   }
-  
   .header h1 {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
   }
-  
-  .header p {
-    color: #666;
-    font-size: 14px;
-  }
-  
   .emoji-decoration {
-    font-size: 50px;
-    margin-bottom: 15px;
-    animation: bounce 2s ease-in-out infinite;
+    font-size: 48px;
+    animation: bounce 2s infinite ease-in-out;
   }
-  
   @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Inputs */
+  .input-group {
+    margin-bottom: 20px;
+    animation: fadeInUp 0.6s ease-out forwards;
   }
   
-  .input-group {
-    margin-bottom: 25px;
+  .input-group:nth-child(1) { animation-delay: 0.1s; }
+  .input-group:nth-child(2) { animation-delay: 0.2s; }
+  .input-group:nth-child(3) { animation-delay: 0.3s; }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   
   .input-group label {
     display: block;
     font-weight: 600;
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 15px;
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
   }
   
-  .input-group input,
-  .input-group select {
+  body.dark-mode .input-group label {
+    color: #e0e0e0;
+  }
+  
+  .input-group input {
     width: 100%;
-    padding: 15px;
-    border: 2px solid #e0e0e0;
+    padding: 14px;
+    font-size: 15px;
+    border: 2px solid #ddd;
     border-radius: 12px;
-    font-size: 16px;
-    font-family: 'Poppins', sans-serif;
     transition: all 0.3s ease;
-    background: #f9f9f9;
+    background: rgba(255, 255, 255, 0.95);
   }
   
-  .input-group input:focus,
-  .input-group select:focus {
-    outline: none;
+  body.dark-mode .input-group input {
+    background: rgba(50, 70, 100, 0.6);
+    border-color: #555;
+    color: #fff;
+  }
+  
+  .input-group input:focus {
     border-color: #667eea;
     background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    transform: scale(1.02);
   }
   
+  body.dark-mode .input-group input:focus {
+    background: rgba(100, 120, 150, 0.8);
+    color: #fff;
+  }
+
+  /* Day Selector */
   .day-selector {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
   }
-  
   .day-btn {
-    padding: 15px;
-    border: 2px solid #e0e0e0;
+    padding: 14px;
+    text-align: center;
+    border: 2px solid #ccc;
     border-radius: 12px;
-    background: #f9f9f9;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 15px;
     transition: all 0.3s ease;
-    color: #555;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.7);
   }
   
+  body.dark-mode .day-btn {
+    background: rgba(50, 70, 100, 0.6);
+    border-color: #555;
+    color: #e0e0e0;
+  }
+  
+  .day-btn.active,
   .day-btn:hover {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.05);
-  }
-  
-  .day-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     border-color: transparent;
     transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
   }
-  
+
+  /* Button */
   .calculate-btn {
     width: 100%;
-    padding: 18px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    padding: 16px;
+    margin-top: 10px;
     border: none;
     border-radius: 12px;
-    font-size: 18px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: 17px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-    margin-top: 10px;
   }
-  
   .calculate-btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
   }
-  
   .calculate-btn:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
   }
-  
+
+  /* Result */
   .result {
     margin-top: 30px;
-    padding: 25px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    padding: 22px;
     border-radius: 15px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
     text-align: center;
-    min-height: 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 0.5s ease;
+    display: none;
+    transition: all 0.4s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  body.dark-mode .result {
+    background: rgba(50, 70, 100, 0.4);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+  
+  .result.show {
+    display: block;
+    animation: slideDown 0.5s ease;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .result-emoji {
+    font-size: 55px;
+    margin-bottom: 12px;
+    animation: bounce 0.6s ease;
+    display: inline-block;
+  }
+
+  .result-percent {
+    font-size: 40px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 10px 0;
+    animation: pulse 1s ease-in-out;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
   }
   
   @keyframes fadeIn {
@@ -217,175 +493,70 @@
     to { opacity: 1; }
   }
   
-  .result-emoji {
-    font-size: 60px;
-    margin-bottom: 15px;
-    animation: scaleIn 0.5s ease;
-  }
-  
-  @keyframes scaleIn {
-    from { transform: scale(0); }
-    to { transform: scale(1); }
-  }
-  
-  .result-percent {
-    font-size: 48px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 10px;
-  }
-  
   .result-text {
-    font-size: 16px;
-    color: #555;
-    font-weight: 600;
-    margin-top: 5px;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 10px 0;
+    color: #333;
+    animation: fadeIn 0.6s ease 0.2s both;
+  }
+  
+  body.dark-mode .result-text {
+    color: #e0e0e0;
   }
   
   .result-message {
     font-size: 14px;
-    color: #777;
     margin-top: 10px;
-    font-style: italic;
+    opacity: 0.8;
+    animation: fadeIn 0.6s ease 0.4s both;
   }
-  
-  .hidden {
-    display: none;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    body {
-      padding: 10px;
-    }
-    
-    .container {
-      padding: 25px;
-      max-width: 100%;
-      border-radius: 20px;
-    }
-    
-    .header h1 {
-      font-size: 26px;
-    }
-    
-    .emoji-decoration {
-      font-size: 40px;
-    }
-    
-    .input-group label {
-      font-size: 14px;
-    }
-    
-    .input-group input,
-    .input-group select {
-      padding: 12px;
-      font-size: 14px;
-    }
-    
-    .day-btn {
-      padding: 12px;
-      font-size: 14px;
-    }
-    
-    .calculate-btn {
-      padding: 15px;
-      font-size: 16px;
-    }
-    
-    .result {
-      padding: 20px;
-    }
-    
-    .result-emoji {
-      font-size: 50px;
-    }
-    
-    .result-percent {
-      font-size: 38px;
-    }
-    
-    .result-text {
-      font-size: 14px;
-    }
-    
-    .result-message {
-      font-size: 13px;
-    }
-  }
-  
+
+  /* Responsive */
   @media (max-width: 480px) {
     .container {
-      padding: 20px;
+      padding: 25px;
     }
-    
     .header h1 {
-      font-size: 22px;
+      font-size: 24px;
     }
-    
-    .header p {
-      font-size: 13px;
-    }
-    
-    .emoji-decoration {
-      font-size: 35px;
-    }
-    
-    .day-selector {
-      grid-template-columns: 1fr;
-    }
-    
-    .result-emoji {
-      font-size: 45px;
-    }
-    
-    .result-percent {
-      font-size: 32px;
-    }
-  }
-  
-  @media (min-width: 1200px) {
-    .container {
-      max-width: 500px;
-      padding: 45px;
-    }
+    .emoji-decoration { font-size: 40px; }
   }
 </style>
 </head>
 <body>
-  <div class="container">
+  <div class="space-bg" id="spaceBg"></div>
+  <div class="sun-rays" id="sunRays"></div>
+  <button id="themeToggle" style="position: fixed; top: 20px; right: 20px; padding: 10px 15px; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; background: rgba(255, 255, 255, 0.4); font-size: 20px; transition: all 0.3s ease; z-index: 1000; backdrop-filter: blur(8px); border: 2px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center;">🌙</button>
+  
+  <div class="container" id="dragBox">
     <div class="header">
       <div class="emoji-decoration">🎓</div>
       <h1>Bunk Probability</h1>
-      <p>Will you skip class today? Let's find out! 😎</p>
+      <p>Let’s check your bunk mood today 😎</p>
     </div>
-    
+
     <div class="input-group">
-      <label>📝 Your Name</label>
-      <input type="text" id="studentName" placeholder="Enter your name">
+      <label>Your Name</label>
+      <input type="text" id="studentName" placeholder="Enter name" />
     </div>
-    
+
     <div class="input-group">
-      <label>📚 Subject</label>
-      <input type="text" id="subjectName" placeholder="e.g., Mathematics, Physics">
+      <label>Subject</label>
+      <input type="text" id="subjectName" placeholder="e.g., Maths" />
     </div>
-    
+
     <div class="input-group">
-      <label>📅 Which Day?</label>
+      <label>Day</label>
       <div class="day-selector">
         <div class="day-btn active" data-day="today">Today 🌤️</div>
         <div class="day-btn" data-day="tomorrow">Tomorrow 🌙</div>
       </div>
     </div>
-    
-    <button class="calculate-btn" id="calculateBtn">
-      Calculate Bunk Probability 🚀
-    </button>
-    
-    <div class="result hidden" id="result">
+
+    <button class="calculate-btn" id="calculateBtn">Calculate 🚀</button>
+
+    <div class="result" id="resultBox">
       <div class="result-emoji" id="resultEmoji"></div>
       <div class="result-percent" id="resultPercent"></div>
       <div class="result-text" id="resultText"></div>
@@ -393,182 +564,274 @@
     </div>
   </div>
 
-  <script>
-    let selectedDay = 'today';
-    
-    // Draggable functionality
-    let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset = 0;
-    let yOffset = 0;
-    
-    const container = document.querySelector('.container');
-    
-    container.addEventListener('mousedown', dragStart);
-    container.addEventListener('touchstart', dragStart);
-    
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('touchmove', drag);
-    
-    document.addEventListener('mouseup', dragEnd);
-    document.addEventListener('touchend', dragEnd);
-    
-    function dragStart(e) {
-      // Don't drag if clicking on input, button, or select
-      if (e.target.tagName === 'INPUT' || 
-          e.target.tagName === 'BUTTON' || 
-          e.target.tagName === 'SELECT' ||
-          e.target.classList.contains('day-btn')) {
-        return;
-      }
-      
-      if (e.type === 'touchstart') {
-        initialX = e.touches[0].clientX - xOffset;
-        initialY = e.touches[0].clientY - yOffset;
-      } else {
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
-      }
-      
-      isDragging = true;
+<script>
+  /*-------------------------------
+   INTERACTIVE SPACE BACKGROUND
+  --------------------------------*/
+  const spaceBg = document.getElementById("spaceBg");
+  
+  // Create stars
+  function createStars() {
+    for (let i = 0; i < 100; i++) {
+      const star = document.createElement("div");
+      star.className = "star";
+      star.style.width = Math.random() * 3 + "px";
+      star.style.height = star.style.width;
+      star.style.left = Math.random() * 100 + "%";
+      star.style.top = Math.random() * 100 + "%";
+      star.style.animationDelay = Math.random() * 3 + "s";
+      spaceBg.appendChild(star);
     }
+  }
+  
+  // Create floating particles with mouse interaction
+  let particleCount = 0;
+  const maxParticles = 8;
+  
+  function createFloatingParticle() {
+    if (particleCount >= maxParticles) return;
     
-    function drag(e) {
-      if (isDragging) {
-        e.preventDefault();
-        
-        if (e.type === 'touchmove') {
-          currentX = e.touches[0].clientX - initialX;
-          currentY = e.touches[0].clientY - initialY;
-        } else {
-          currentX = e.clientX - initialX;
-          currentY = e.clientY - initialY;
-        }
-        
-        xOffset = currentX;
-        yOffset = currentY;
-        
-        setTranslate(currentX, currentY, container);
+    const particle = document.createElement("div");
+    particle.className = "floating-particle";
+    
+    const size = Math.random() * 60 + 20;
+    particle.style.width = size + "px";
+    particle.style.height = size + "px";
+    particle.style.left = Math.random() * 100 + "%";
+    particle.style.top = Math.random() * 100 + "%";
+    
+    const colors = [
+      `rgba(102, 126, 234, ${Math.random() * 0.4 + 0.1})`,
+      `rgba(118, 75, 162, ${Math.random() * 0.4 + 0.1})`,
+      `rgba(255, 200, 150, ${Math.random() * 0.3 + 0.1})`
+    ];
+    particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]}, transparent)`;
+    
+    const duration = Math.random() * 6 + 12;
+    const direction = Math.random() > 0.5 ? "float-up" : "float-down";
+    particle.style.animation = `${direction} ${duration}s linear forwards`;
+    particle.style.animationDelay = Math.random() * 1 + "s";
+    
+    spaceBg.appendChild(particle);
+    particleCount++;
+    
+    setTimeout(() => {
+      particle.remove();
+      particleCount--;
+    }, duration * 1000 + 1500);
+  }
+  
+  // Create multiple floating particles continuously
+  setInterval(createFloatingParticle, 2000);
+  
+  // Mouse tracking for interactive glow effect
+  document.addEventListener("mousemove", (e) => {
+    const container = document.getElementById("dragBox");
+    if (!container) return;
+    
+    const rect = container.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const distX = e.clientX - centerX;
+    const distY = e.clientY - centerY;
+    const distance = Math.sqrt(distX * distX + distY * distY);
+    const angle = Math.atan2(distY, distX);
+    
+    // Add subtle glow effect that increases with proximity
+    const maxDistance = 400;
+    const glowIntensity = Math.max(0, 1 - (distance / maxDistance));
+    const glowRadius = 20 + glowIntensity * 20;
+    
+    container.style.boxShadow = `0 25px 60px rgba(0, 0, 0, ${0.25 + glowIntensity * 0.1}), 
+                                  ${Math.cos(angle) * glowRadius}px ${Math.sin(angle) * glowRadius}px ${40 + glowIntensity * 20}px rgba(102, 126, 234, ${0.15 + glowIntensity * 0.25})`;
+  });
+  
+  // Initialize stars on load
+  createStars();
+  
+  // Create birds in light mode
+  let birdCount = 0;
+  const maxBirds = 4;
+  
+  function createBird() {
+    if (currentTheme !== "light" || birdCount >= maxBirds) return;
+    
+    const bird = document.createElement("div");
+    bird.className = "bird";
+    bird.textContent = "🐦";
+    
+    const startY = Math.random() * 150 + 50;
+    bird.style.top = startY + "px";
+    bird.style.left = "0";
+    
+    const duration = Math.random() * 12 + 15;
+    const direction = Math.random() > 0.5 ? "fly" : "fly-reverse";
+    bird.style.animation = `${direction} ${duration}s linear forwards`;
+    bird.style.animationDelay = Math.random() * 2 + "s";
+    
+    spaceBg.appendChild(bird);
+    birdCount++;
+    
+    setTimeout(() => {
+      bird.remove();
+      birdCount--;
+    }, duration * 1000 + 2500);
+  }
+  
+  // Create birds periodically when in light mode
+  const birdInterval = setInterval(() => {
+    if (currentTheme === "light") {
+      createBird();
+    }
+  }, 3500);
+
+  /*-------------------------------
+   THEME SWITCHING
+  --------------------------------*/
+  const themeToggle = document.getElementById("themeToggle");
+  let currentTheme = localStorage.getItem("theme") || "default";
+  
+  function applyTheme(theme) {
+    document.body.classList.remove("light-mode", "dark-mode");
+    if (theme === "light") {
+      document.body.classList.add("light-mode");
+      themeToggle.textContent = "🌙";
+      // Start creating birds when switching to light mode
+      if (!window.birdIntervalActive) {
+        window.birdIntervalActive = true;
       }
+    } else if (theme === "dark") {
+      document.body.classList.add("dark-mode");
+      themeToggle.textContent = "☀️";
+      window.birdIntervalActive = false;
+    } else {
+      themeToggle.textContent = "🌙";
+      window.birdIntervalActive = false;
     }
-    
-    function dragEnd(e) {
-      initialX = currentX;
-      initialY = currentY;
-      isDragging = false;
+    localStorage.setItem("theme", theme);
+  }
+  
+  themeToggle.addEventListener("click", () => {
+    if (currentTheme === "default") currentTheme = "light";
+    else if (currentTheme === "light") currentTheme = "dark";
+    else currentTheme = "default";
+    applyTheme(currentTheme);
+  });
+  
+  applyTheme(currentTheme);
+
+  /*-------------------------------
+   DAY SELECTION
+  --------------------------------*/
+  let selectedDay = "today";
+  document.querySelectorAll(".day-btn").forEach((btn) => {
+    btn.onclick = function () {
+      document.querySelectorAll(".day-btn").forEach((b) => b.classList.remove("active"));
+      this.classList.add("active");
+      selectedDay = this.dataset.day;
+    };
+  });
+
+  /*-------------------------------
+   BUNK CALCULATION
+  --------------------------------*/
+  function calculateProbability(name, subject, day) {
+    if (!name.trim() || !subject.trim()) return null;
+    let seed = [...(name + subject)].reduce((a, c) => a + c.charCodeAt(0), 0);
+    seed += day === "today" ? 15 : 30;
+    return (seed % 99) + 1;
+  }
+
+  function getResult(percent) {
+    if (percent >= 85)
+      return { emoji: "🎉", text: "SUPER HIGH!", msg: "Universe approves your bunk 😆" };
+    if (percent >= 70)
+      return { emoji: "✨", text: "HIGH CHANCE", msg: "Looks like a chill day 👀" };
+    if (percent >= 50)
+      return { emoji: "🤷", text: "MODERATE", msg: "Trust your gut 💭" };
+    if (percent >= 30)
+      return { emoji: "📖", text: "LOW", msg: "Maybe attend today 😅" };
+    return { emoji: "🚫", text: "VERY LOW", msg: "Class is calling!" };
+  }
+
+  document.getElementById("calculateBtn").onclick = () => {
+    const name = document.getElementById("studentName").value;
+    const subject = document.getElementById("subjectName").value;
+
+    const percent = calculateProbability(name, subject, selectedDay);
+    const resultBox = document.getElementById("resultBox");
+    const resultEmoji = document.getElementById("resultEmoji");
+    const resultPercent = document.getElementById("resultPercent");
+    const resultText = document.getElementById("resultText");
+    const resultMessage = document.getElementById("resultMessage");
+
+    if (!percent) {
+      resultBox.classList.add("show");
+      resultEmoji.textContent = "⚠️";
+      resultPercent.textContent = "";
+      resultText.textContent = "Fill all fields!";
+      resultMessage.textContent = "";
+      return;
     }
-    
-    function setTranslate(xPos, yPos, el) {
-      el.style.transform = `translate(${xPos}px, ${yPos}px)`;
-    }
-    
-    // Day selector functionality
-    document.querySelectorAll('.day-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        selectedDay = this.dataset.day;
-      });
-    });
-    
-    // Calculate bunk probability
-    function calculateBunkProbability(name, subject, day) {
-      const nameStr = name.trim().toLowerCase();
-      const subjectStr = subject.trim().toLowerCase();
-      
-      if (!nameStr || !subjectStr) return null;
-      
-      let seed = 0;
-      
-      // Create a pseudo-random but consistent seed
-      for (let char of nameStr + subjectStr) {
-        seed += char.charCodeAt(0);
-      }
-      
-      // Add day factor
-      seed += day === 'today' ? 13 : 29;
-      
-      // Add name length and subject length factors
-      seed += nameStr.length * 17 + subjectStr.length * 23;
-      
-      // Generate percentage between 1 and 99
-      let percent = (seed % 99) + 1;
-      
-      return percent;
-    }
-    
-    function getEmojiAndMessage(percent) {
-      if (percent >= 85) {
-        return {
-          emoji: '🎉',
-          text: 'SUPER HIGH CHANCE!',
-          message: 'The universe is basically telling you to bunk! 😆'
-        };
-      } else if (percent >= 70) {
-        return {
-          emoji: '✨',
-          text: 'HIGH PROBABILITY',
-          message: 'Looking good for a day off! Consider it seriously 🤔'
-        };
-      } else if (percent >= 50) {
-        return {
-          emoji: '🤷',
-          text: 'MODERATE CHANCE',
-          message: 'Could go either way. Trust your gut feeling! 💭'
-        };
-      } else if (percent >= 30) {
-        return {
-          emoji: '📖',
-          text: 'LOW PROBABILITY',
-          message: 'Maybe you should attend... But who are we to judge? 😅'
-        };
-      } else {
-        return {
-          emoji: '🚫',
-          text: 'VERY LOW CHANCE',
-          message: 'Attendance is calling! Better show up today 📚'
-        };
-      }
-    }
-    
-    document.getElementById('calculateBtn').addEventListener('click', function() {
-      const name = document.getElementById('studentName').value;
-      const subject = document.getElementById('subjectName').value;
-      
-      const percent = calculateBunkProbability(name, subject, selectedDay);
-      
-      const resultDiv = document.getElementById('result');
-      const resultEmoji = document.getElementById('resultEmoji');
-      const resultPercent = document.getElementById('resultPercent');
-      const resultText = document.getElementById('resultText');
-      const resultMessage = document.getElementById('resultMessage');
-      
-      if (percent === null) {
-        resultDiv.classList.remove('hidden');
-        resultEmoji.textContent = '⚠️';
-        resultPercent.textContent = '';
-        resultText.textContent = 'Please fill in all fields!';
-        resultMessage.textContent = '';
-        return;
-      }
-      
-      const result = getEmojiAndMessage(percent);
-      
-      resultDiv.classList.remove('hidden');
-      resultEmoji.textContent = result.emoji;
-      resultPercent.textContent = percent + '%';
-      resultText.textContent = result.text;
-      resultMessage.textContent = result.message;
-      
-      // Trigger animation
-      resultDiv.style.animation = 'none';
-      setTimeout(() => {
-        resultDiv.style.animation = 'fadeIn 0.5s ease';
-      }, 10);
-    });
-  </script>
+
+    const res = getResult(percent);
+    resultEmoji.textContent = res.emoji;
+    resultPercent.textContent = percent + "%";
+    resultText.textContent = res.text;
+    resultMessage.textContent = res.msg;
+
+    resultBox.classList.remove("show");
+    setTimeout(() => resultBox.classList.add("show"), 10);
+  };
+
+  /*-------------------------------
+   DRAGGABLE UI
+  --------------------------------*/
+  let drag = false,
+    startX,
+    startY,
+    x = 0,
+    y = 0;
+
+  const box = document.getElementById("dragBox");
+
+  box.addEventListener("mousedown", startDrag);
+  document.addEventListener("mouseup", stopDrag);
+  document.addEventListener("mousemove", onDrag);
+
+  function startDrag(e) {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.id === "themeToggle") return;
+    drag = true;
+    startX = e.clientX - x;
+    startY = e.clientY - y;
+    box.style.cursor = "grabbing";
+    box.style.transition = "none";
+  }
+
+  function stopDrag() {
+    drag = false;
+    box.style.cursor = "grab";
+    box.style.transition = "all 0.4s ease";
+  }
+
+  function onDrag(e) {
+    if (!drag) return;
+    x = e.clientX - startX;
+    y = e.clientY - startY;
+    box.style.transform = `translate(${x}px, ${y}px)`;
+  }
+  
+  /*-------------------------------
+   WINDOW RESIZE - RESPONSIVE ADJUSTMENT
+  --------------------------------*/
+  window.addEventListener("resize", () => {
+    const rect = box.getBoundingClientRect();
+    if (rect.left < 0) x = 20 - rect.left + x;
+    if (rect.top < 0) y = 20 - rect.top + y;
+    if (rect.right > window.innerWidth) x = window.innerWidth - 20 - rect.width + x;
+    if (rect.bottom > window.innerHeight) y = window.innerHeight - 20 - rect.height + y;
+    box.style.transform = `translate(${x}px, ${y}px)`;
+  });
+</script>
 </body>
 </html>
