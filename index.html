@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bunk Probability Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  body::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    top: -250px;
+    right: -250px;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  body::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    bottom: -200px;
+    left: -200px;
+    animation: float 8s ease-in-out infinite reverse;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(20px); }
+  }
+  
+  .container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 35px;
+  }
+  
+  .header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  
+  .header p {
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .emoji-decoration {
+    font-size: 50px;
+    margin-bottom: 15px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .input-group {
+    margin-bottom: 25px;
+  }
+  
+  .input-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
+  
+  .input-group input,
+  .input-group select {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+    background: #f9f9f9;
+  }
+  
+  .input-group input:focus,
+  .input-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  .day-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  
+  .day-btn {
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: #f9f9f9;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    color: #555;
+  }
+  
+  .day-btn:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+  }
+  
+  .day-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    transform: scale(1.05);
+  }
+  
+  .calculate-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    margin-top: 10px;
+  }
+  
+  .calculate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+  }
+  
+  .calculate-btn:active {
+    transform: translateY(0);
+  }
+  
+  .result {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 15px;
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.5s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .result-emoji {
+    font-size: 60px;
+    margin-bottom: 15px;
+    animation: scaleIn 0.5s ease;
+  }
+  
+  @keyframes scaleIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+  
+  .result-percent {
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  
+  .result-text {
+    font-size: 16px;
+    color: #555;
+    font-weight: 600;
+    margin-top: 5px;
+  }
+  
+  .result-message {
+    font-size: 14px;
+    color: #777;
+    margin-top: 10px;
+    font-style: italic;
+  }
+  
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="emoji-decoration">🎓</div>
+      <h1>Bunk Probability</h1>
+      <p>Will you skip class today? Let's find out! 😎</p>
+    </div>
+    
+    <div class="input-group">
+      <label>📝 Your Name</label>
+      <input type="text" id="studentName" placeholder="Enter your name">
+    </div>
+    
+    <div class="input-group">
+      <label>📚 Subject</label>
+      <input type="text" id="subjectName" placeholder="e.g., Mathematics, Physics">
+    </div>
+    
+    <div class="input-group">
+      <label>📅 Which Day?</label>
+      <div class="day-selector">
+        <div class="day-btn active" data-day="today">Today 🌤️</div>
+        <div class="day-btn" data-day="tomorrow">Tomorrow 🌙</div>
+      </div>
+    </div>
+    
+    <button class="calculate-btn" id="calculateBtn">
+      Calculate Bunk Probability 🚀
+    </button>
+    
+    <div class="result hidden" id="result">
+      <div class="result-emoji" id="resultEmoji"></div>
+      <div class="result-percent" id="resultPercent"></div>
+      <div class="result-text" id="resultText"></div>
+      <div class="result-message" id="resultMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    let selectedDay = 'today';
+    
+    // Day selector functionality
+    document.querySelectorAll('.day-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedDay = this.dataset.day;
+      });
+    });
+    
+    // Calculate bunk probability
+    function calculateBunkProbability(name, subject, day) {
+      const nameStr = name.trim().toLowerCase();
+      const subjectStr = subject.trim().toLowerCase();
+      
+      if (!nameStr || !subjectStr) return null;
+      
+      let seed = 0;
+      
+      // Create a pseudo-random but consistent seed
+      for (let char of nameStr + subjectStr) {
+        seed += char.charCodeAt(0);
+      }
+      
+      // Add day factor
+      seed += day === 'today' ? 13 : 29;
+      
+      // Add name length and subject length factors
+      seed += nameStr.length * 17 + subjectStr.length * 23;
+      
+      // Generate percentage between 1 and 99
+      let percent = (seed % 99) + 1;
+      
+      return percent;
+    }
+    
+    function getEmojiAndMessage(percent) {
+      if (percent >= 85) {
+        return {
+          emoji: '🎉',
+          text: 'SUPER HIGH CHANCE!',
+          message: 'The universe is basically telling you to bunk! 😆'
+        };
+      } else if (percent >= 70) {
+        return {
+          emoji: '✨',
+          text: 'HIGH PROBABILITY',
+          message: 'Looking good for a day off! Consider it seriously 🤔'
+        };
+      } else if (percent >= 50) {
+        return {
+          emoji: '🤷',
+          text: 'MODERATE CHANCE',
+          message: 'Could go either way. Trust your gut feeling! 💭'
+        };
+      } else if (percent >= 30) {
+        return {
+          emoji: '📖',
+          text: 'LOW PROBABILITY',
+          message: 'Maybe you should attend... But who are we to judge? 😅'
+        };
+      } else {
+        return {
+          emoji: '🚫',
+          text: 'VERY LOW CHANCE',
+          message: 'Attendance is calling! Better show up today 📚'
+        };
+      }
+    }
+    
+    document.getElementById('calculateBtn').addEventListener('click', function() {
+      const name = document.getElementById('studentName').value;
+      const subject = document.getElementById('subjectName').value;
+      
+      const percent = calculateBunkProbability(name, subject, selectedDay);
+      
+      const resultDiv = document.getElementById('result');
+      const resultEmoji = document.getElementById('resultEmoji');
+      const resultPercent = document.getElementById('resultPercent');
+      const resultText = document.getElementById('resultText');
+      const resultMessage = document.getElementById('resultMessage');
+      
+      if (percent === null) {
+        resultDiv.classList.remove('hidden');
+        resultEmoji.textContent = '⚠️';
+        resultPercent.textContent = '';
+        resultText.textContent = 'Please fill in all fields!';
+        resultMessage.textContent = '';
+        return;
+      }
+      
+      const result = getEmojiAndMessage(percent);
+      
+      resultDiv.classList.remove('hidden');
+      resultEmoji.textContent = result.emoji;
+      resultPercent.textContent = percent + '%';
+      resultText.textContent = result.text;
+      resultMessage.textContent = result.message;
+      
+      // Trigger animation
+      resultDiv.style.animation = 'none';
+      setTimeout(() => {
+        resultDiv.style.animation = 'fadeIn 0.5s ease';
+      }, 10);
+    });
+  </script>
+</body>
+</html>
